@@ -1,339 +1,346 @@
-import React from 'react';
-import { Award, BookOpen, Flag, FolderOpen, Sparkles, ArrowLeft, Clock, User, Star } from 'lucide-react';
+"use client";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
-const CareerPathResults = ({ profileData }) => {
-  // Use the profileData prop or fallback to the example data structure
-  const careerPath = profileData?.profile_json || {
-    "Candidate Name": "NAVEENKUMAR KS",
-    "job_role": "frontend developer",
-    "career_path": {
-      "path_name": "Career Path for frontend developer",
-      "description": "A detailed career path to become proficient in frontend developer",
-      "stages": [
-        {
-          "stage": "Stage 1: Foundation",
-          "description": "Build foundational skills in high-demand areas, addressing current skill gaps.",
-          "courses": [
-            {
-              "course_name": "Modern React",
-              "description": "Comprehensive course covering React fundamentals, Hooks, Context API, and basic state management.",
-              "duration": "8 weeks",
-              "provider": "Udemy, Coursera, or similar platform. Consider paid courses for structured learning and support."
-            },
-            {
-              "course_name": "REST APIs with JavaScript",
-              "description": "Focus on making HTTP requests using `fetch` or Axios, understanding API design principles, and handling JSON data.",
-              "duration": "4 weeks",
-              "provider": "Udemy, freeCodeCamp, or similar platform."
-            },
-            {
-              "course_name": "Responsive Web Design",
-              "description": "Mastering CSS media queries, flexbox, grid, and potentially a CSS framework like Tailwind CSS.",
-              "duration": "6 weeks",
-              "provider": "freeCodeCamp, Scrimba, or similar platform. Supplement with Tailwind CSS documentation."
-            },
-            {
-              "course_name": "Testing with Jest and Cypress",
-              "description": "In-depth course covering unit, integration, and end-to-end testing for React applications.",
-              "duration": "6 weeks",
-              "provider": "Test Automation University, Udemy, or similar platform."
-            },
-            {
-              "course_name": "Git and GitHub",
-              "description": "Fundamentals of Git (init, add, commit, push, pull, branch, merge) and collaborative workflows on GitHub.",
-              "duration": "2 weeks",
-              "provider": "GitHub Learning Lab, freeCodeCamp, or similar platform."
-            }
-          ],
-          "checkpoints": [
-            {
-              "checkpoint_name": "React Fundamentals",
-              "description": "Build a simple to-do list application using React.",
-              "success_criteria": "Functional to-do list with basic CRUD operations and state management."
-            },
-            {
-              "checkpoint_name": "API Integration",
-              "description": "Create a weather application fetching data from a public weather API.",
-              "success_criteria": "Functional weather app displaying current conditions and forecasts."
-            },
-            {
-              "checkpoint_name": "Responsive Design",
-              "description": "Build a responsive portfolio website.",
-              "success_criteria": "Website adapts smoothly to different screen sizes and devices."
-            },
-            {
-              "checkpoint_name": "Testing",
-              "description": "Write unit and integration tests for a simple React component.",
-              "success_criteria": "High test coverage (80%+) with clear test cases."
-            },
-            {
-              "checkpoint_name": "Version Control",
-              "description": "Collaborate on a small project using Git and GitHub.",
-              "success_criteria": "Successful collaborative workflow, demonstrating branching, merging, and conflict resolution."
-            }
-          ],
-          "projects": [
-            {
-              "project_name": "To-Do List App",
-              "description": "A simple to-do list application with add, delete, and edit functionalities.",
-              "objectives": "Practice React fundamentals, state management, and component design."
-            },
-            {
-              "project_name": "Weather Application",
-              "description": "A weather application that fetches data from a public API and displays current weather information.",
-              "objectives": "Practice API integration and data visualization."
-            },
-            {
-              "project_name": "Responsive Portfolio Website",
-              "description": "A portfolio website that is responsive across various devices.",
-              "objectives": "Practice responsive design and CSS frameworks."
-            },
-            {
-              "project_name": "Simple E-commerce Product Page",
-              "description": "A single-product page with a shopping cart feature.",
-              "objectives": "Combine React, REST API integration, and responsive design principles."
-            }
-          ]
-        },
-        {
-          "stage": "Stage 2: Advanced Learning",
-          "description": "Develop advanced skills and mastery in high-impact areas, focusing on career advancement.",
-          "courses": [
-            {
-              "course_name": "Advanced React",
-              "description": "Deep dive into advanced React Hooks, Context API, performance optimization (memoization, code splitting), and testing with Jest and React Testing Library. Explore state management solutions like Redux Toolkit or Zustand.",
-              "duration": "12 weeks",
-              "provider": "Frontend Masters, Udemy, or similar platform. Consider paid courses for in-depth coverage."
-            },
-            {
-              "course_name": "Next.js",
-              "description": "Learn to build server-side rendered and statically generated applications using Next.js.",
-              "duration": "8 weeks",
-              "provider": "Next.js documentation, Vercel tutorials, or similar resources."
-            }
-          ],
-          "checkpoints": [
-            {
-              "checkpoint_name": "Advanced React Project",
-              "description": "Build a complex application utilizing advanced React concepts (Hooks, Context API, Redux Toolkit/Zustand).",
-              "success_criteria": "A complex, well-structured application demonstrating mastery of advanced React concepts. Should include comprehensive testing."
-            },
-            {
-              "checkpoint_name": "Next.js Project",
-              "description": "Develop a full-stack application using Next.js and a backend technology of your choice.",
-              "success_criteria": "Fully functional application demonstrating understanding of server-side rendering and static site generation. Should include optimized performance."
-            }
-          ],
-          "projects": [
-            {
-              "project_name": "Complex React Application",
-              "description": "A real-world application showcasing advanced React concepts.",
-              "objectives": "Demonstrate mastery of advanced React skills such as code-splitting, performance optimization, custom hooks, and state management."
-            },
-            {
-              "project_name": "Next.js Application",
-              "description": "Build a blog application or an e-commerce website using Next.js.",
-              "objectives": "Demonstrate skills in server-side rendering, static site generation, and Next.js features."
-            }
-          ]
-        }
-      ]
-    },
-    "summary": "This career path focuses on building a strong foundation in frontend development, addressing NAVEENKUMAR KS's existing skills and identified skill gaps. The plan prioritizes high-demand skills, incorporates practical projects for hands-on experience, and includes checkpoints to monitor progress. By following this plan, NAVEENKUMAR KS can significantly enhance his frontend development capabilities and achieve his career goals. Continuous learning and adaptation to emerging technologies like AI-powered tools are crucial for long-term success."
+export default function CareerPlanResults() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [activeStage, setActiveStage] = useState(0);
+  const [careerPlan, setCareerPlan] = useState(null);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (id) {
+      fetchProfileById();
+    } else {
+      setError("Invalid profile ID");
+      setIsLoading(false);
+    }
+  }, [id]);
+
+  const fetchProfileById = async () => {
+    console.log("Fetching profile for ID:", id);
+    try {
+      setIsLoading(true);
+      const response = await fetch(`http://127.0.0.1:8000/api/profile/${id}/`);
+      if (!response.ok) {
+        throw new Error(`Profile not found: ${response.status}`);
+      }
+      const fetchedData = await response.json();
+      console.log("Fetched data:", fetchedData);
+      setCareerPlan(fetchedData.profile_json || fetchedData);
+      setError(null);
+    } catch (err) {
+      setError(`Failed to fetch profile: ${err.message}`);
+      console.error("Fetch error:", err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Calculate total duration
-  const totalDuration = careerPath.career_path.stages.reduce((total, stage) => {
-    const courseDurations = stage.courses.map(course => {
-      const match = course.duration.match(/(\d+)\s*weeks?/i);
-      return match ? parseInt(match[1]) : 0;
-    });
-    return total + courseDurations.reduce((sum, weeks) => sum + weeks, 0);
-  }, 0);
-
-  const handleBackToHome = () => {
-    console.log('Navigate back to landing page');
+  const downloadPlan = () => {
+    if (!careerPlan) return;
+    const dataStr = JSON.stringify(careerPlan, null, 2);
+    const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
+    const exportFileDefaultName = `career-plan-${
+      careerPlan.job_role ? careerPlan.job_role.toLowerCase().replace(/\s+/g, "-") : "unknown"
+    }.json`;
+    const linkElement = document.createElement("a");
+    linkElement.setAttribute("href", dataUri);
+    linkElement.setAttribute("download", exportFileDefaultName);
+    linkElement.click();
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Animated background */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
-        <div className="absolute -bottom-32 left-1/2 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
-      </div>
-
-      <div className="relative z-10 p-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <button
-              onClick={handleBackToHome}
-              className="mb-6 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur-sm border border-white/20 text-white transition-all duration-300 hover:scale-105 inline-flex items-center"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </button>
-            
-            <div className="backdrop-blur-xl bg-white/10 rounded-3xl p-8 border border-white/20 shadow-2xl">
-              <div className="flex items-center justify-center mb-4">
-                <Award className="w-12 h-12 text-cyan-400 mr-4" />
-                <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                  {careerPath.career_path.path_name}
-                </h1>
-              </div>
-              <p className="text-xl text-white/80 leading-relaxed max-w-4xl mx-auto mb-4">
-                {careerPath.career_path.description}
-              </p>
-              
-              {/* Candidate info */}
-              <div className="text-lg text-cyan-300 mb-6">
-                Career Plan for <span className="font-semibold">{careerPath["Candidate Name"]}</span>
-              </div>
-              
-              {/* Quick Stats */}
-              <div className="flex justify-center items-center mt-6 space-x-8">
-                <div className="flex items-center text-white/70">
-                  <Clock className="w-5 h-5 mr-2 text-cyan-400" />
-                  <span>{Math.ceil(totalDuration / 4)} weeks total</span>
-                </div>
-                <div className="flex items-center text-white/70">
-                  <User className="w-5 h-5 mr-2 text-purple-400" />
-                  <span>{careerPath.career_path.stages.length} stages</span>
-                </div>
-                <div className="flex items-center text-white/70">
-                  <Star className="w-5 h-5 mr-2 text-pink-400" />
-                  <span className="capitalize">{careerPath.job_role}</span>
-                </div>
-              </div>
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 flex items-center justify-center">
+        <div className="max-w-2xl w-full bg-white/80 backdrop-blur-md rounded-xl shadow-lg p-6 text-center">
+          <div className="animate-pulse">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Loading Your Career Plan...</h3>
+            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 animate-pulse" style={{ width: "100%" }} />
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
 
-          {/* Timeline */}
-          <div className="relative mb-8">
-            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-cyan-500 via-purple-500 to-pink-500"></div>
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 flex items-center justify-center">
+        <div className="max-w-2xl w-full bg-white/80 backdrop-blur-md rounded-xl shadow-lg p-6 text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => navigate("/")}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2 px-4 rounded-md hover:from-blue-600 hover:to-indigo-700 transition-all"
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const profile = careerPlan || {};
+  const careerPath = profile.career_path || {};
+
+  if (!careerPath.stages || !Array.isArray(careerPath.stages)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 flex items-center justify-center">
+        <div className="max-w-2xl w-full bg-white/80 backdrop-blur-md rounded-xl shadow-lg p-6 text-center">
+          <p className="text-gray-600 mb-4">No career plan data available.</p>
+          <button
+            onClick={() => navigate("/")}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-2 px-4 rounded-md hover:from-blue-600 hover:to-indigo-700 transition-all"
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const totalCourses = careerPath.stages.reduce((acc, stage) => acc + (stage.courses ? stage.courses.length : 0), 0);
+  const totalProjects = careerPath.stages.reduce((acc, stage) => acc + (stage.projects ? stage.projects.length : 0), 0);
+  const totalCheckpoints = careerPath.stages.reduce((acc, stage) => acc + (stage.checkpoints ? stage.checkpoints.length : 0), 0);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2 border border-gray-300 bg-transparent py-2 px-4 rounded-md text-gray-700 hover:bg-gray-100 transition-all"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            Back to Upload
+          </button>
+          <button
+            onClick={downloadPlan}
+            className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-2 px-4 rounded-md hover:from-green-600 hover:to-emerald-700 transition-all"
+            disabled={!careerPlan}
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+            </svg>
+            Download Plan
+          </button>
+        </div>
+
+        {/* Title Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2 animate-fade-in">
+            Career Plan for {profile["Candidate Name"] || "Unknown Candidate"}
+          </h1>
+          <p className="text-xl text-gray-600 mb-4">{profile.job_role || "Unknown Role"} Specialist</p>
+          <div className="flex justify-center gap-6 text-gray-500">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 3h20v20H2zM12 2v2M20 10v2M2 10v2M20 6v2M2 6v2M8 21h8M8 3h8" />
+              </svg>
+              <span>{totalCourses} Courses</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" />
+              </svg>
+              <span>{totalProjects} Projects</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3" />
+              </svg>
+              <span>{totalCheckpoints} Checkpoints</span>
+            </div>
           </div>
+        </div>
 
-          {/* Stages */}
-          <div className="space-y-12">
-            {careerPath.career_path.stages.map((stage, index) => (
-              <div key={index} className="relative">
-                {/* Timeline dot */}
-                <div className="absolute left-6 w-6 h-6 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full border-4 border-slate-900 z-10"></div>
-                
-                <div className="ml-16 backdrop-blur-xl bg-white/10 rounded-3xl p-8 border border-white/20 shadow-2xl hover:bg-white/15 transition-all duration-300">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full flex items-center justify-center mr-4">
-                        <span className="text-white font-bold text-xl">{index + 1}</span>
-                      </div>
-                      <div>
-                        <h2 className="text-3xl font-bold text-white mb-2">{stage.stage}</h2>
-                        <p className="text-white/70">{stage.description}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="px-4 py-2 bg-white/10 rounded-full border border-white/20">
-                        <span className="text-cyan-400 font-semibold">
-                          {stage.courses.reduce((total, course) => {
-                            const match = course.duration.match(/(\d+)\s*weeks?/i);
-                            return total + (match ? parseInt(match[1]) : 0);
-                          }, 0)} weeks
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white/80 backdrop-blur-md rounded-lg shadow-lg p-6 transform hover:scale-105 transition-all">
+            <h3 className="text-lg font-semibold text-blue-700">Career Path</h3>
+            <h4 className="font-medium text-gray-900 mt-2">{careerPath.path_name || "N/A"}</h4>
+            <p className="text-gray-600 mt-2">{careerPath.description || "No description available"}</p>
+          </div>
+          <div className="bg-white/80 backdrop-blur-md rounded-lg shadow-lg p-6 transform hover:scale-105 transition-all">
+            <h3 className="text-lg font-semibold text-green-700">Learning Stages</h3>
+            <div className="text-2xl font-bold text-green-600 mt-2">{careerPath.stages.length}</div>
+            <p className="text-gray-600 mt-2">Structured learning phases to master your target role</p>
+          </div>
+          <div className="bg-white/80 backdrop-blur-md rounded-lg shadow-lg p-6 transform hover:scale-105 transition-all">
+            <h3 className="text-lg font-semibold text-purple-700">Progress Tracking</h3>
+            <div className="text-2xl font-bold text-purple-600 mt-2">{totalCheckpoints}</div>
+            <p className="text-gray-600 mt-2">Milestones to track your learning progress</p>
+          </div>
+        </div>
 
-                  <div className="grid md:grid-cols-3 gap-6">
-                    {/* Courses */}
-                    <div className="space-y-4">
-                      <h3 className="text-xl font-semibold text-cyan-400 flex items-center border-b border-cyan-400/30 pb-2">
-                        <BookOpen className="w-5 h-5 mr-2" />
-                        Courses ({stage.courses.length})
-                      </h3>
-                      {stage.courses.map((course, courseIndex) => (
-                        <div key={courseIndex} className="bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300 group">
-                          <h4 className="font-semibold text-white mb-2 group-hover:text-cyan-400 transition-colors">
-                            {course.course_name}
-                          </h4>
-                          <p className="text-white/70 text-sm mb-3">{course.description}</p>
-                          <div className="flex justify-between text-xs">
-                            <span className="px-2 py-1 bg-cyan-600/20 text-cyan-400 rounded">
-                              {course.duration}
+        {/* Summary */}
+        <div className="bg-white/80 backdrop-blur-md rounded-lg shadow-lg mb-8">
+          <div className="p-6">
+            <h3 className="text-xl font-semibold text-gray-900">Executive Summary</h3>
+            <p className="text-gray-700 mt-2 leading-relaxed">{profile.summary || "No summary available"}</p>
+          </div>
+        </div>
+
+        {/* Career Path Stages */}
+        <div className="bg-white/80 backdrop-blur-md rounded-lg shadow-lg">
+          <div className="p-6">
+            <h3 className="text-2xl font-semibold text-gray-900">Learning Path</h3>
+            <p className="text-gray-600 mt-1">Follow this structured approach to achieve your career goals</p>
+          </div>
+          <div className="p-6">
+            <div className="flex gap-2 mb-6 overflow-x-auto">
+              {careerPath.stages.map((stage, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveStage(index)}
+                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                    activeStage === index
+                      ? "bg-blue-100 text-blue-700 border-blue-300"
+                      : "bg-gray-100 text-gray-600 border-gray-300 hover:bg-gray-200"
+                  } border`}
+                >
+                  Stage {index + 1}
+                </button>
+              ))}
+            </div>
+            {careerPath.stages.map((stage, stageIndex) => (
+              <div key={stageIndex} className={`${activeStage === stageIndex ? "block" : "hidden"} animate-fade-in`}>
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200 mb-6">
+                  <h4 className="text-xl font-bold text-blue-700 mb-2">{stage.stage || "Unnamed Stage"}</h4>
+                  <p className="text-blue-600">{stage.description || "No description available"}</p>
+                </div>
+                <div>
+                  <h5 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg className="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M2 3h20v20H2zM12 2v2M20 10v2M2 10v2M20 6v2M2 6v2M8 21h8M8 3h8" />
+                    </svg>
+                    Recommended Courses ({stage.courses ? stage.courses.length : 0})
+                  </h5>
+                  <div className="grid gap-4">
+                    {stage.courses && stage.courses.length > 0 ? (
+                      stage.courses.map((course, courseIndex) => (
+                        <div
+                          key={courseIndex}
+                          className="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-all"
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <h6 className="font-medium text-gray-900">{course.course_name || "Unnamed Course"}</h6>
+                            <span className="flex items-center bg-gray-100 px-2 py-1 rounded-full text-xs">
+                              <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                              </svg>
+                              {course.duration || "N/A"}
                             </span>
-                            <span className="text-white/60 text-right">{course.provider}</span>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2">{course.description || "No description available"}</p>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-medium text-blue-600">{course.provider || "Unknown Provider"}</span>
+                            {/* <button
+                              onClick={() => course.url && window.open(course.url, "_blank")}
+                              className="flex items-center gap-1 border border-gray-300 bg-transparent px-2 py-1 rounded-md text-xs hover:bg-gray-100 transition-all"
+                              disabled={!course.url}
+                            >
+                              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                              </svg>
+                              View Course
+                            </button> */}
                           </div>
                         </div>
-                      ))}
-                    </div>
-
-                    {/* Checkpoints */}
-                    <div className="space-y-4">
-                      <h3 className="text-xl font-semibold text-purple-400 flex items-center border-b border-purple-400/30 pb-2">
-                        <Flag className="w-5 h-5 mr-2" />
-                        Checkpoints ({stage.checkpoints.length})
-                      </h3>
-                      {stage.checkpoints.map((checkpoint, checkpointIndex) => (
-                        <div key={checkpointIndex} className="bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300 group">
-                          <h4 className="font-semibold text-white mb-2 group-hover:text-purple-400 transition-colors">
-                            {checkpoint.checkpoint_name}
-                          </h4>
-                          <p className="text-white/70 text-sm mb-3">{checkpoint.description}</p>
-                          <div className="px-3 py-1 bg-purple-600/20 text-purple-400 rounded text-xs">
-                            <strong>Success:</strong> {checkpoint.success_criteria}
+                      ))
+                    ) : (
+                      <p className="text-gray-600">No courses available for this stage.</p>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-8">
+                  <h5 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg className="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" />
+                    </svg>
+                    Hands-on Projects ({stage.projects ? stage.projects.length : 0})
+                  </h5>
+                  <div className="grid gap-2">
+                    {stage.projects && stage.projects.length > 0 ? (
+                      stage.projects.map((project, projectIndex) => (
+                        <div key={projectIndex} className="border border-gray-200 rounded-lg">
+                          <button
+                            className="w-full p-4 text-left bg-transparent font-medium text-gray-900 hover:bg-gray-50 transition-all"
+                          >
+                            {project.project_name || "Unnamed Project"}
+                          </button>
+                          <div className="p-4 pt-0 grid gap-3">
+                            <div>
+                              <h6 className="font-medium text-gray-900 mb-1">Description</h6>
+                              <p className="text-sm text-gray-600">{project.description || "No description available"}</p>
+                            </div>
+                            <div>
+                              <h6 className="font-medium text-gray-900 mb-1">Learning Objectives</h6>
+                              <p className="text-sm text-gray-600">{project.objectives || "No objectives available"}</p>
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
-
-                    {/* Projects */}
-                    <div className="space-y-4">
-                      <h3 className="text-xl font-semibold text-pink-400 flex items-center border-b border-pink-400/30 pb-2">
-                        <FolderOpen className="w-5 h-5 mr-2" />
-                        Projects ({stage.projects.length})
-                      </h3>
-                      {stage.projects.map((project, projectIndex) => (
-                        <div key={projectIndex} className="bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-all duration-300 group">
-                          <h4 className="font-semibold text-white mb-2 group-hover:text-pink-400 transition-colors">
-                            {project.project_name}
-                          </h4>
-                          <p className="text-white/70 text-sm mb-3">{project.description}</p>
-                          <div className="px-3 py-1 bg-pink-600/20 text-pink-400 rounded text-xs">
-                            <strong>Goals:</strong> {project.objectives}
+                      ))
+                    ) : (
+                      <p className="text-gray-600">No projects available for this stage.</p>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-8">
+                  <h5 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg className="w-5 h-5 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3" />
+                    </svg>
+                    Progress Checkpoints ({stage.checkpoints ? stage.checkpoints.length : 0})
+                  </h5>
+                  <div className="grid gap-4">
+                    {stage.checkpoints && stage.checkpoints.length > 0 ? (
+                      stage.checkpoints.map((checkpoint, checkpointIndex) => (
+                        <div
+                          key={checkpointIndex}
+                          className="border border-purple-100 bg-purple-50/50 rounded-lg p-4"
+                        >
+                          <div className="flex gap-3">
+                            <svg className="w-5 h-5 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3" />
+                            </svg>
+                            <div className="flex-1">
+                              <h6 className="font-semibold text-purple-700 mb-1">{checkpoint.checkpoint_name || "Unnamed Checkpoint"}</h6>
+                              <p className="text-sm text-purple-600 mb-2">{checkpoint.description || "No description available"}</p>
+                              <div className="bg-white/80 p-2 rounded-md border border-purple-100">
+                                <span className="text-xs font-medium text-purple-700">Success Criteria:</span>
+                                <p className="text-xs text-purple-600 mt-1">{checkpoint.success_criteria || "No criteria available"}</p>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-600">No checkpoints available for this stage.</p>
+                    )}
                   </div>
                 </div>
               </div>
             ))}
           </div>
-
-          {/* Summary */}
-          <div className="mt-16 backdrop-blur-xl bg-white/10 rounded-3xl p-8 border border-white/20 shadow-2xl">
-            <div className="flex items-center justify-center mb-6">
-              <Sparkles className="w-8 h-8 text-yellow-400 mr-3" />
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
-                Journey Summary
-              </h2>
-            </div>
-            <p className="text-xl text-white/80 leading-relaxed text-center max-w-4xl mx-auto">
-              {careerPath.summary}
-            </p>
-            
-            {/* Call to Action */}
-            <div className="flex justify-center mt-8">
-              <button className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 rounded-full text-white font-semibold text-lg transition-all duration-300 hover:scale-105 shadow-lg">
-                Start Your Journey
-              </button>
-            </div>
-          </div>
         </div>
       </div>
+      <style jsx>{`
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.5s ease-out;
+        }
+      `}</style>
     </div>
   );
-};
-
-export default CareerPathResults;
+}

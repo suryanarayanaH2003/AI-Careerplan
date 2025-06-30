@@ -8,7 +8,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/career-path" element={<CareerPathResults />} />
+        <Route path="/career-path/:id" element={<CareerPathResults />} />
       </Routes>
     </Router>
   );

@@ -8,6 +8,7 @@ from rest_framework import status
 from pymongo import MongoClient
 import fitz  # PyMuPDF
 from .agents import interpret_resume_and_find_skill_gaps
+from bson import ObjectId
 
 # MongoDB setup
 client = MongoClient("mongodb://localhost:27017/")
@@ -58,14 +59,33 @@ def profile_interpret_view(request):
 
     # Save the parsed JSON data to MongoDB
     try:
-        collection.insert_one({
+        # After inserting into MongoDB
+        insert_result = collection.insert_one({
             "job_role": job_role,
             "profile_json": profile_json
+        })
+        return Response({
+            "message": "Data processed and stored successfully",
+            "data": profile_json,
+            "id": str(insert_result.inserted_id)  # <-- Add this line
         })
     except Exception as e:
         return Response({"error": f"Failed to save data to MongoDB: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    return Response({
-        "message": "Data processed and stored successfully",
-        "data": profile_json
-    })
+@api_view(["GET"])
+def get_profile_by_id(request, id):
+    profile_id = id
+
+    if not profile_id:
+        return Response({"error": "id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        query = {"_id": ObjectId(profile_id)}
+        profile = collection.find_one(query)
+        if not profile:
+            return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
+        # Convert ObjectId to string for JSON serialization
+        profile["_id"] = str(profile["_id"])
+        return Response(profile)
+    except Exception as e:
+        return Response({"error": f"Failed to fetch data: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

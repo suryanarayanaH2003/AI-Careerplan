@@ -1,267 +1,240 @@
-import React, { useState } from 'react';
-import { Sparkles, Upload, Target, TrendingUp, CheckCircle, Star, Zap, Rocket } from 'lucide-react';
+"use client";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const LandingPage = () => {
-  const [resume, setResume] = useState(null);
-  const [jobRole, setJobRole] = useState('');
+const steps = [
+  { id: 1, title: "Extracting Resume Content", description: "Reading and parsing your PDF resume..." },
+  { id: 2, title: "Analyzing Skills", description: "Identifying your current skills and experience..." },
+  { id: 3, title: "Market Research", description: "Researching current job market trends..." },
+  { id: 4, title: "Generating Career Plan", description: "Creating your personalized career roadmap..." },
+];
+
+export default function CareerPlannerHome() {
+  const navigate = useNavigate();
+  const [file, setFile] = useState(null);
+  const [jobRole, setJobRole] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingStep, setLoadingStep] = useState(0);
-  // For demo purposes, you can replace this with your actual navigation logic
-  const navigateToResults = (careerPath) => {
-    console.log('Navigate to results with:', careerPath);
-    // Example: window.location.href = '/career-path';
+  const [currentStep, setCurrentStep] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState("");
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile && selectedFile.type === "application/pdf") {
+      setFile(selectedFile);
+      setError("");
+    } else {
+      setError("Please select a valid PDF file");
+    }
   };
 
-  const loadingSteps = [
-    { text: "Analyzing your resume...", icon: <Upload className="w-5 h-5" /> },
-    { text: "Identifying your skills...", icon: <Star className="w-5 h-5" /> },
-    { text: "Comparing with desired job role...", icon: <Target className="w-5 h-5" /> },
-    { text: "Generating your career path...", icon: <TrendingUp className="w-5 h-5" /> },
-    { text: "Finalizing recommendations...", icon: <Sparkles className="w-5 h-5" /> }
-  ];
-
-  const handleSubmit = async () => {
-    if (!resume || !jobRole) return;
-    
-    setIsLoading(true);
-    setLoadingStep(0);
-
-    const formData = new FormData();
-    formData.append('resume', resume);
-    formData.append('job_role', jobRole);
-
-    try {
-      // Simulate loading steps
-      for (let i = 0; i < loadingSteps.length; i++) {
-        await new Promise(resolve => setTimeout(resolve, 1200));
-        setLoadingStep(i + 1);
+  const simulateProgress = () => {
+    let step = 0;
+    let progressValue = 0;
+    const interval = setInterval(() => {
+      if (step < steps.length) {
+        setCurrentStep(step);
+        progressValue += 25;
+        setProgress(progressValue);
+        step++;
+      } else {
+        clearInterval(interval);
       }
+    }, 3000); // Adjust based on backend processing time
+    return interval;
+  };
 
-      // Replace this with your actual API call
-      const response = await fetch('http://localhost:8000/api/profile-interpret/', {
-        method: 'POST',
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!file || !jobRole.trim()) {
+      setError("Please provide both resume file and job role");
+      return;
+    }
+    setIsLoading(true);
+    setError("");
+    setCurrentStep(0);
+    setProgress(0);
+    const progressInterval = simulateProgress();
+    try {
+      const formData = new FormData();
+      formData.append("resume", file);
+      formData.append("job_role", jobRole);
+      const response = await fetch("http://127.0.0.1:8000/api/profile-interpret/", {
+        method: "POST",
         body: formData,
       });
-      
-      const data = await response.json();
-      navigateToResults(data.data);
-    } catch (error) {
-      console.error('Error uploading resume:', error);
-      // Handle error appropriately
-    } finally {
+      if (!response.ok) {
+        throw new Error(`Failed to process resume: ${response.status}`);
+      }
+      const result = await response.json();
+      console.log("API Response:", result); // Debug log
+      if (!result.id) {
+        throw new Error("No profile ID returned from API");
+      }
+      clearInterval(progressInterval);
+      setProgress(100);
+      setCurrentStep(steps.length);
+      setTimeout(() => {
+        setIsLoading(false);
+        navigate(`/career-plan/${result.id}`);
+      }, 1000);
+    } catch (err) {
+      clearInterval(progressInterval);
+      setError(err.message || "An error occurred while processing your resume");
       setIsLoading(false);
+      setProgress(0);
+      setCurrentStep(0);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-1000"></div>
-        <div className="absolute -bottom-32 left-1/2 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-pulse animation-delay-2000"></div>
-      </div>
-
-      {/* Header */}
-      <header className="relative z-10 backdrop-blur-sm bg-white/10 border-b border-white/20">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <Rocket className="w-8 h-8 text-cyan-400" />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                CareerPath Pro
-              </h1>
-            </div>
-            <nav className="hidden md:flex space-x-8">
-              {/* <a href="#features" className="text-white/80 hover:text-cyan-400 transition-colors duration-300">Features</a>
-              <a href="#how-it-works" className="text-white/80 hover:text-cyan-400 transition-colors duration-300">How It Works</a>
-              <a href="#testimonials" className="text-white/80 hover:text-cyan-400 transition-colors duration-300">Testimonials</a> */}
-            </nav>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 flex items-center justify-center">
+      <div className="max-w-2xl w-full bg-white/80 backdrop-blur-md rounded-xl shadow-lg p-6">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-indigo-900">AI Career Planner</h1>
+          <p className="text-lg text-gray-600 mt-2 max-w-md mx-auto">
+            Upload your resume and target job role to unlock a personalized career roadmap
+          </p>
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="relative z-10">
-        <section className="py-20 px-6">
-          <div className="container mx-auto text-center">
-            <div className="animate-fade-in">
-              <h2 className="text-6xl font-bold mb-6 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-tight">
-                Unlock Your
-                <br />
-                Career Potential
-              </h2>
-              <p className="text-xl text-white/80 mb-12 max-w-3xl mx-auto leading-relaxed">
-                Transform your career with AI-powered insights. Upload your resume and discover a personalized roadmap to your dream job.
-              </p>
-            </div>
-
-            {/* Upload Form */}
-            <div className="max-w-lg mx-auto">
-              <div className="backdrop-blur-xl bg-white/10 p-8 rounded-3xl border border-white/20 shadow-2xl">
-                <div className="space-y-6">
-                  <div className="text-left">
-                    <label className="block text-white/90 text-sm font-semibold mb-3">
-                      <Upload className="w-4 h-4 inline mr-2" />
-                      Upload Your Resume
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="file"
-                        onChange={(e) => setResume(e.target.files[0])}
-                        className="w-full p-4 bg-white/5 border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-cyan-600 file:text-white hover:file:bg-cyan-700 file:cursor-pointer"
-                        accept=".pdf,.doc,.docx"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="text-left">
-                    <label className="block text-white/90 text-sm font-semibold mb-3">
-                      <Target className="w-4 h-4 inline mr-2" />
-                      Desired Job Role
-                    </label>
-                    <input
-                      type="text"
-                      value={jobRole}
-                      onChange={(e) => setJobRole(e.target.value)}
-                      className="w-full p-4 bg-white/5 border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent transition-all duration-300"
-                      placeholder="e.g., Full Stack Developer"
-                    />
-                  </div>
-
-                  <button
-                    onClick={handleSubmit}
-                    className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 p-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                    disabled={isLoading || !resume || !jobRole}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center justify-center">
-                        <Zap className="w-5 h-5 mr-2 animate-spin" />
-                        Generating...
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center">
-                        <Sparkles className="w-5 h-5 mr-2" />
-                        Generate Career Path
-                      </div>
-                    )}
-                  </button>
+        <div className="bg-white/90 rounded-lg shadow-md p-6">
+          {!isLoading ? (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <label htmlFor="resume" className="text-sm font-medium text-gray-700">
+                  Upload Resume (PDF)
+                </label>
+                <div className="relative">
+                  <input
+                    id="resume"
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleFileChange}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+                  />
                 </div>
+                {file && (
+                  <p className="text-sm text-green-600 flex items-center gap-2">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    {file.name}
+                  </p>
+                )}
               </div>
-
-              {/* Loading Animation */}
-              {isLoading && (
-                <div className="mt-8 backdrop-blur-xl bg-white/10 p-8 rounded-3xl border border-white/20 shadow-2xl animate-fade-in">
-                  <h3 className="text-2xl font-bold text-cyan-400 mb-6">
-                    <Sparkles className="w-6 h-6 inline mr-2" />
-                    Crafting Your Career Path
-                  </h3>
-                  
-                  <div className="space-y-4 mb-6">
-                    {loadingSteps.map((step, index) => (
-                      <div key={index} className="flex items-center p-3 rounded-xl bg-white/5 transition-all duration-500">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 transition-all duration-500 ${
-                          index < loadingStep 
-                            ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white' 
-                            : 'bg-white/20 text-white/60'
-                        }`}>
-                          {index < loadingStep ? (
-                            <CheckCircle className="w-5 h-5" />
-                          ) : (
-                            step.icon
-                          )}
-                        </div>
-                        <p className={`transition-all duration-500 ${
-                          index < loadingStep 
-                            ? 'text-white font-semibold' 
-                            : 'text-white/70'
-                        }`}>
-                          {step.text}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="w-full bg-white/20 rounded-full h-2">
-                      <div 
-                        className="bg-gradient-to-r from-cyan-500 to-purple-600 h-2 rounded-full transition-all duration-500 ease-out"
-                        style={{ width: `${(loadingStep / loadingSteps.length) * 100}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-white/70 text-sm">
-                      Step {loadingStep} of {loadingSteps.length}
-                    </p>
-                  </div>
+              <div className="space-y-2">
+                <label htmlFor="jobRole" className="text-sm font-medium text-gray-700">
+                  Target Job Role
+                </label>
+                <input
+                  id="jobRole"
+                  type="text"
+                  placeholder="e.g., Gen AI, Full Stack Developer, Data Scientist"
+                  value={jobRole}
+                  onChange={(e) => setJobRole(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+              {error && (
+                <div className="text-red-600 bg-red-50 border border-red-200 p-4 rounded-md">
+                  {error}
                 </div>
               )}
+              <button
+                type="submit"
+                disabled={!file || !jobRole.trim()}
+                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-md font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Generate Career Plan
+              </button>
+            </form>
+          ) : (
+            <div className="space-y-6 py-8">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Processing your resume...</span>
+                  <span>{progress}%</span>
+                </div>
+                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-500"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+              <div className="space-y-4">
+                {steps.map((step, index) => {
+                  const isActive = index === currentStep;
+                  const isCompleted = index < currentStep;
+                  return (
+                    <div
+                      key={step.id}
+                      className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all duration-500 transform ${
+                        isActive
+                          ? "border-blue-200 bg-blue-50 scale-105"
+                          : isCompleted
+                          ? "border-green-200 bg-green-50"
+                          : "border-gray-200 bg-gray-50"
+                      }`}
+                    >
+                      <div
+                        className={`p-2 rounded-full ${
+                          isActive ? "bg-blue-100 text-blue-600" : isCompleted ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"
+                        }`}
+                      >
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          {step.id === 1 && (
+                            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 20V4h7v5h5v11H6z" />
+                          )}
+                          {step.id === 2 && (
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8-1.41-1.42z" />
+                          )}
+                          {step.id === 3 && (
+                            <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 11H9v2h2v2h2v-2h2V9h-2V7h-2v2zm0 4h-2v2h2v-2z" />
+                          )}
+                          {step.id === 4 && (
+                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                          )}
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h3
+                          className={`font-semibold ${
+                            isActive ? "text-blue-700" : isCompleted ? "text-green-700" : "text-gray-500"
+                          }`}
+                        >
+                          {step.title}
+                        </h3>
+                        <p
+                          className={`text-sm ${
+                            isActive ? "text-blue-600" : isCompleted ? "text-green-600" : "text-gray-400"
+                          }`}
+                        >
+                          {step.description}
+                        </p>
+                      </div>
+                      {isCompleted && (
+                        <div className="text-green-600">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section id="features" className="py-20 px-6">
-          <div className="container mx-auto">
-            <h3 className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              Why Choose CareerPath Pro?
-            </h3>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="backdrop-blur-xl bg-white/10 p-8 rounded-3xl border border-white/20 hover:bg-white/15 transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full flex items-center justify-center mb-6">
-                  <Sparkles className="w-8 h-8 text-white" />
-                </div>
-                <h4 className="text-2xl font-bold text-white mb-4">AI-Powered Analysis</h4>
-                <p className="text-white/70">Advanced algorithms analyze your skills and experience to create personalized career recommendations.</p>
-              </div>
-              <div className="backdrop-blur-xl bg-white/10 p-8 rounded-3xl border border-white/20 hover:bg-white/15 transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mb-6">
-                  <Target className="w-8 h-8 text-white" />
-                </div>
-                <h4 className="text-2xl font-bold text-white mb-4">Targeted Roadmaps</h4>
-                <p className="text-white/70">Get specific learning paths with courses, projects, and milestones tailored to your desired role.</p>
-              </div>
-              <div className="backdrop-blur-xl bg-white/10 p-8 rounded-3xl border border-white/20 hover:bg-white/15 transition-all duration-300">
-                <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-cyan-600 rounded-full flex items-center justify-center mb-6">
-                  <TrendingUp className="w-8 h-8 text-white" />
-                </div>
-                <h4 className="text-2xl font-bold text-white mb-4">Track Progress</h4>
-                <p className="text-white/70">Monitor your growth with clear checkpoints and achievements along your career journey.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="relative z-10 backdrop-blur-sm bg-white/5 border-t border-white/20 py-8">
-        <div className="container mx-auto px-6 text-center text-white/60">
-          <p>&copy; 2024 CareerPath Pro. Empowering careers with AI.</p>
+          )}
         </div>
-      </footer>
-
-      <style jsx>{`
-        .animation-delay-1000 {
-          animation-delay: 1s;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fade-in 1s ease-out;
-        }
-      `}</style>
+      </div>
     </div>
   );
-};
-
-export default LandingPage;
+}
