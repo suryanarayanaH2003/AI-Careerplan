@@ -34,3 +34,6 @@ backend/__pycache__/
 backend/backend/__pycache__/
 backend/api/__pycache__/
 backend/api/migrations/ 
+
+frontend/package-lock.json
+frontend/package.json
