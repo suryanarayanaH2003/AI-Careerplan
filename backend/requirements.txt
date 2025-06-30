@@ -1,0 +1,9 @@
+Django
+djangorestframework
+pymongo
+PyMuPDF
+crewai
+crewai-tools
+google-generativeai
+requests
+python-dotenv

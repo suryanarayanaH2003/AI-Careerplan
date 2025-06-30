@@ -1,0 +1,36 @@
+# Ignore Python cache and virtual environment files
+__pycache__/
+backend/backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+ENV/
+*.env
+venv/
+# Ignore Django/Flask specific files
+*.sqlite3
+db.sqlite3
+instance/
+*.log
+.venv/
+# Ignore IDE/editor files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore build and dist folders
+build/
+dist/
+*.egg-info/
+
+backend/__pycache__/
+backend/backend/__pycache__/
+backend/api/__pycache__/
+backend/api/migrations/ 
