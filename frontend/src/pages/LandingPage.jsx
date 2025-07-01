@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const steps = [
@@ -9,7 +10,7 @@ const steps = [
   { id: 4, title: "Generating Career Plan", description: "Creating your personalized career roadmap..." },
 ];
 
-export default function CareerPlannerHome() {
+export default function EnhancedCareerPlannerHome() {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [jobRole, setJobRole] = useState("");
@@ -17,11 +18,34 @@ export default function CareerPlannerHome() {
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile && selectedFile.type === "application/pdf") {
       setFile(selectedFile);
+      setError("");
+    } else {
+      setError("Please select a valid PDF file");
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const droppedFile = e.dataTransfer.files[0];
+    if (droppedFile && droppedFile.type === "application/pdf") {
+      setFile(droppedFile);
       setError("");
     } else {
       setError("Please select a valid PDF file");
@@ -40,7 +64,7 @@ export default function CareerPlannerHome() {
       } else {
         clearInterval(interval);
       }
-    }, 3000); // Adjust based on backend processing time
+    }, 3000);
     return interval;
   };
 
@@ -67,7 +91,7 @@ export default function CareerPlannerHome() {
         throw new Error(`Failed to process resume: ${response.status}`);
       }
       const result = await response.json();
-      console.log("API Response:", result); // Debug log
+      console.log("API Response:", result);
       if (!result.id) {
         throw new Error("No profile ID returned from API");
       }
@@ -76,7 +100,7 @@ export default function CareerPlannerHome() {
       setCurrentStep(steps.length);
       setTimeout(() => {
         setIsLoading(false);
-        navigate(`/career-plan/${result.id}`);
+        navigate(`/career-path/${result.id}`);
       }, 1000);
     } catch (err) {
       clearInterval(progressInterval);
@@ -88,143 +112,243 @@ export default function CareerPlannerHome() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 flex items-center justify-center">
-      <div className="max-w-2xl w-full bg-white/80 backdrop-blur-md rounded-xl shadow-lg p-6">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-indigo-900">AI Career Planner</h1>
-          <p className="text-lg text-gray-600 mt-2 max-w-md mx-auto">
-            Upload your resume and target job role to unlock a personalized career roadmap
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4 flex items-center justify-center relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-50 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-50 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-4000"></div>
+      </div>
+      <div className="max-w-4xl w-full relative z-6">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center mb-6">
+            <svg className="w-10 h-10 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <h1 className="inline text-5xl font-bold bg-gradient-to-r from-blue-400 via-blue-400 to-pink-400 bg-clip-text text-transparent align-middle">
+              AI Career Planner
+            </h1>
+          </div>
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            Transform your career journey with AI-powered insights. Upload your resume and discover your personalized
+            roadmap to success.
           </p>
         </div>
-        <div className="bg-white/90 rounded-lg shadow-md p-6">
+        <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 md:p-12">
           {!isLoading ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <label htmlFor="resume" className="text-sm font-medium text-gray-700">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* File Upload Section */}
+              <div className="space-y-4">
+                <label className="text-lg font-semibold text-white flex items-center gap-3">
+                  <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
                   Upload Resume (PDF)
                 </label>
-                <div className="relative">
+                <div
+                  className={`relative border-2 border-dashed rounded-2xl p-8 transition-all duration-300 ${
+                    isDragOver
+                      ? "border-blue-400 bg-blue-500/10 scale-105"
+                      : file
+                      ? "border-green-400 bg-green-500/10"
+                      : "border-gray-400 bg-white/5 hover:border-blue-400 hover:bg-blue-500/5"
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
                   <input
                     id="resume"
                     type="file"
                     accept=".pdf"
                     onChange={handleFileChange}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
+                    className="absolute inset-0 w-full h-8px opacity-0 cursor-pointer"
                   />
+                  <div className="text-center">
+                    {file ? (
+                      <div className="space-y-3">
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/20 rounded-full">
+                          <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        </div>
+                        <p className="text-green-400 font-semibold text-lg">{file.name}</p>
+                        <p className="text-gray-400">File uploaded successfully!</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500/20 rounded-full">
+                          <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                            />
+                          </svg>
+                        </div>
+                        <p className="text-white font-semibold text-lg">
+                          {isDragOver ? "Drop your PDF here" : "Drag & drop your PDF resume"}
+                        </p>
+                        <p className="text-gray-400">or click to browse files</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                {file && (
-                  <p className="text-sm text-green-600 flex items-center gap-2">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    {file.name}
-                  </p>
-                )}
               </div>
-              <div className="space-y-2">
-                <label htmlFor="jobRole" className="text-sm font-medium text-gray-700">
+              {/* Job Role Input */}
+              <div className="space-y-4">
+                <label className="text-lg font-semibold text-white flex items-center gap-3">
+                  <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6"
+                    />
+                  </svg>
                   Target Job Role
                 </label>
-                <input
-                  id="jobRole"
-                  type="text"
-                  placeholder="e.g., Gen AI, Full Stack Developer, Data Scientist"
-                  value={jobRole}
-                  onChange={(e) => setJobRole(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"
-                />
+                <div className="relative">
+                  <input
+                    id="jobRole"
+                    type="text"
+                    placeholder="e.g., Gen AI Engineer, Full Stack Developer, Data Scientist"
+                    value={jobRole}
+                    onChange={(e) => setJobRole(e.target.value)}
+                    className="w-full p-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-lg backdrop-blur-sm"
+                  />
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+                  </div>
+                </div>
               </div>
+              {/* Error Message */}
               {error && (
-                <div className="text-red-600 bg-red-50 border border-red-200 p-4 rounded-md">
-                  {error}
+                <div className="bg-red-500/20 border border-red-500/50 rounded-2xl p-4 backdrop-blur-sm">
+                  <div className="flex items-center gap-3">
+                    <svg
+                      className="w-6 h-6 text-red-400 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <p className="text-red-300 font-medium">{error}</p>
+                  </div>
                 </div>
               )}
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={!file || !jobRole.trim()}
-                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-md font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-blue-500 via-blue-500 to-pink-500 text-white py-4 rounded-2xl font-bold text-lg hover:from-blue-600 hover:via-blue-600 hover:to-pink-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 hover:shadow-2xl disabled:hover:scale-100 disabled:hover:shadow-none relative overflow-hidden group"
               >
-                Generate Career Plan
+                <span className="relative z-10 flex items-center justify-center gap-3">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Generate My Career Plan
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </button>
             </form>
           ) : (
-            <div className="space-y-6 py-8">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>Processing your resume...</span>
-                  <span>{progress}%</span>
+            <div className="space-y-8 py-8">
+              {/* Progress Header */}
+              <div className="text-center space-y-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full animate-spin">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
                 </div>
-                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                <h2 className="text-2xl font-bold text-white">Processing Your Career Data</h2>
+                <p className="text-gray-300">Our AI is analyzing your profile and market trends...</p>
+              </div>
+              {/* Progress Bar */}
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm text-gray-300">
+                  <span className="font-medium">Overall Progress</span>
+                  <span className="font-bold">{progress}%</span>
+                </div>
+                <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
                   <div
-                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-blue-500 via-blue-500 to-pink-500 transition-all duration-1000 ease-out relative overflow-hidden"
                     style={{ width: `${progress}%` }}
-                  />
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
+                  </div>
                 </div>
               </div>
-              <div className="space-y-4">
+              {/* Steps */}
+              <div className="grid gap-4">
                 {steps.map((step, index) => {
                   const isActive = index === currentStep;
                   const isCompleted = index < currentStep;
                   return (
                     <div
                       key={step.id}
-                      className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all duration-500 transform ${
+                      className={`flex items-center gap-6 p-6 rounded-2xl border-2 transition-all duration-700 transform ${
                         isActive
-                          ? "border-blue-200 bg-blue-50 scale-105"
+                          ? "border-blue-400/50 bg-blue-500/10 scale-105 shadow-lg shadow-blue-500/25"
                           : isCompleted
-                          ? "border-green-200 bg-green-50"
-                          : "border-gray-200 bg-gray-50"
+                          ? "border-green-400/50 bg-green-500/10 shadow-lg shadow-green-500/25"
+                          : "border-white/10 bg-white/5"
                       }`}
                     >
                       <div
-                        className={`p-2 rounded-full ${
-                          isActive ? "bg-blue-100 text-blue-600" : isCompleted ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"
+                        className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-500 ${
+                          isActive
+                            ? "bg-blue-500 text-white animate-pulse"
+                            : isCompleted
+                            ? "bg-green-500 text-white"
+                            : "bg-white/10 text-gray-400"
                         }`}
                       >
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                          {step.id === 1 && (
-                            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 20V4h7v5h5v11H6z" />
-                          )}
-                          {step.id === 2 && (
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8-1.41-1.42z" />
-                          )}
-                          {step.id === 3 && (
-                            <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 11H9v2h2v2h2v-2h2V9h-2V7h-2v2zm0 4h-2v2h2v-2z" />
-                          )}
-                          {step.id === 4 && (
-                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                          )}
-                        </svg>
+                        {isCompleted ? (
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        ) : (
+                          <span className="font-bold">{step.id}</span>
+                        )}
                       </div>
                       <div className="flex-1">
                         <h3
-                          className={`font-semibold ${
-                            isActive ? "text-blue-700" : isCompleted ? "text-green-700" : "text-gray-500"
+                          className={`font-bold text-lg transition-colors duration-500 ${
+                            isActive ? "text-blue-300" : isCompleted ? "text-green-300" : "text-gray-400"
                           }`}
                         >
                           {step.title}
                         </h3>
                         <p
-                          className={`text-sm ${
-                            isActive ? "text-blue-600" : isCompleted ? "text-green-600" : "text-gray-400"
+                          className={`text-sm transition-colors duration-500 ${
+                            isActive ? "text-blue-200" : isCompleted ? "text-green-200" : "text-gray-500"
                           }`}
                         >
                           {step.description}
                         </p>
                       </div>
-                      {isCompleted && (
-                        <div className="text-green-600">
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                      {isActive && (
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce animation-delay-200"></div>
+                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce animation-delay-400"></div>
                         </div>
                       )}
                     </div>
@@ -235,6 +359,20 @@ export default function CareerPlannerHome() {
           )}
         </div>
       </div>
+      <style>{`
+        .animation-delay-200 {
+          animation-delay: 10s;
+        }
+        .animation-delay-400 {
+          animation-delay: 10s;
+        }
+        .animation-delay-2000 {
+          animation-delay: 10s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 10s;
+        }
+      `}</style>
     </div>
   );
 }

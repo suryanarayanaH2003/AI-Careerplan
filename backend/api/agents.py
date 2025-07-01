@@ -3,8 +3,8 @@ from crewai import Agent, LLM, Task, Crew
 from crewai_tools import SerperDevTool
 
 # Set API Key for LLM and SerperDev
-os.environ["GEMINI_API_KEY"] = "GEMINI_API_KEY"
-os.environ["SERPER_API_KEY"] = "SERPER_API_KEY"  # Replace with your actual Serper API key
+os.environ["GEMINI_API_KEY"] = "AIzaSyBu8w1kf_HGDyHOciY5LKwzXtoPkOK_O48"
+os.environ["SERPER_API_KEY"] = "c7eaa6997ba95b75f4dda0a04392bd398e4961ee"  # Replace with your actual Serper API key
 
 # Define LLM
 my_llm = LLM(
