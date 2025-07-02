@@ -112,248 +112,250 @@ export default function EnhancedCareerPlannerHome() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4 flex items-center justify-center relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-50 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-50 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-4000"></div>
-      </div>
-      <div className="max-w-4xl w-full relative z-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 p-4">
+      <div className="max-w-4xl mx-auto py-8">
+        {/* Header Section */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center mb-6">
-            <svg className="w-10 h-10 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            <h1 className="inline text-5xl font-bold bg-gradient-to-r from-blue-400 via-blue-400 to-pink-400 bg-clip-text text-transparent align-middle">
+            <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center mr-4">
+              <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <h1 className="text-4xl font-bold text-slate-800">
               AI Career Planner
             </h1>
           </div>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Transform your career journey with AI-powered insights. Upload your resume and discover your personalized
-            roadmap to success.
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Advance your career with AI-driven insights. Upload your resume and get a personalized roadmap to achieve your professional goals.
           </p>
         </div>
-        <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 md:p-12">
+
+        {/* Main Card */}
+        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
           {!isLoading ? (
-            <form onSubmit={handleSubmit} className="space-y-8">
-              {/* File Upload Section */}
-              <div className="space-y-4">
-                <label className="text-lg font-semibold text-white flex items-center gap-3">
-                  <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            <div className="p-8 md:p-12">
+              <form onSubmit={handleSubmit} className="space-y-8">
+                {/* File Upload Section */}
+                <div className="space-y-4">
+                  <label className="text-lg font-semibold text-slate-800 flex items-center gap-3">
+                    <div className="w-6 h-6 bg-slate-800 rounded flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
+                      </svg>
+                    </div>
+                    Upload Resume (PDF)
+                  </label>
+                  <div
+                    className={`relative border-2 border-dashed rounded-xl p-8 transition-all duration-300 ${
+                      isDragOver
+                        ? "border-slate-400 bg-slate-50"
+                        : file
+                        ? "border-green-500 bg-green-50"
+                        : "border-slate-300 bg-slate-50 hover:border-slate-400 hover:bg-slate-100"
+                    }`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
+                    <input
+                      id="resume"
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileChange}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     />
-                  </svg>
-                  Upload Resume (PDF)
-                </label>
-                <div
-                  className={`relative border-2 border-dashed rounded-2xl p-8 transition-all duration-300 ${
-                    isDragOver
-                      ? "border-blue-400 bg-blue-500/10 scale-105"
-                      : file
-                      ? "border-green-400 bg-green-500/10"
-                      : "border-gray-400 bg-white/5 hover:border-blue-400 hover:bg-blue-500/5"
-                  }`}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                >
-                  <input
-                    id="resume"
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileChange}
-                    className="absolute inset-0 w-full h-8px opacity-0 cursor-pointer"
-                  />
-                  <div className="text-center">
-                    {file ? (
-                      <div className="space-y-3">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/20 rounded-full">
-                          <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
+                    <div className="text-center">
+                      {file ? (
+                        <div className="space-y-3">
+                          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
+                            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                          </div>
+                          <p className="text-green-700 font-semibold text-lg">{file.name}</p>
+                          <p className="text-slate-600">File uploaded successfully</p>
                         </div>
-                        <p className="text-green-400 font-semibold text-lg">{file.name}</p>
-                        <p className="text-gray-400">File uploaded successfully!</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-500/20 rounded-full">
-                          <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                            />
-                          </svg>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-full">
+                            <svg className="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                              />
+                            </svg>
+                          </div>
+                          <p className="text-slate-800 font-semibold text-lg">
+                            {isDragOver ? "Drop your PDF here" : "Drag & drop your PDF resume"}
+                          </p>
+                          <p className="text-slate-500">or click to browse files</p>
                         </div>
-                        <p className="text-white font-semibold text-lg">
-                          {isDragOver ? "Drop your PDF here" : "Drag & drop your PDF resume"}
-                        </p>
-                        <p className="text-gray-400">or click to browse files</p>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-              {/* Job Role Input */}
-              <div className="space-y-4">
-                <label className="text-lg font-semibold text-white flex items-center gap-3">
-                  <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6"
-                    />
-                  </svg>
-                  Target Job Role
-                </label>
-                <div className="relative">
+
+                {/* Job Role Input */}
+                <div className="space-y-4">
+                  <label className="text-lg font-semibold text-slate-800 flex items-center gap-3">
+                    <div className="w-6 h-6 bg-slate-800 rounded flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6"
+                        />
+                      </svg>
+                    </div>
+                    Target Job Role
+                  </label>
                   <input
                     id="jobRole"
                     type="text"
                     placeholder="e.g., Gen AI Engineer, Full Stack Developer, Data Scientist"
                     value={jobRole}
                     onChange={(e) => setJobRole(e.target.value)}
-                    className="w-full p-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-lg backdrop-blur-sm"
+                    className="w-full p-4 bg-slate-50 border border-slate-300 rounded-xl text-slate-800 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent transition-all duration-300 text-lg"
                   />
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-4">
-                  </div>
                 </div>
-              </div>
-              {/* Error Message */}
-              {error && (
-                <div className="bg-red-500/20 border border-red-500/50 rounded-2xl p-4 backdrop-blur-sm">
-                  <div className="flex items-center gap-3">
-                    <svg
-                      className="w-6 h-6 text-red-400 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <p className="text-red-300 font-medium">{error}</p>
+
+                {/* Error Message */}
+                {error && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                    <div className="flex items-center gap-3">
+                      <svg
+                        className="w-6 h-6 text-red-600 flex-shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <p className="text-red-700 font-medium">{error}</p>
+                    </div>
                   </div>
-                </div>
-              )}
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={!file || !jobRole.trim()}
-                className="w-full bg-gradient-to-r from-blue-500 via-blue-500 to-pink-500 text-white py-4 rounded-2xl font-bold text-lg hover:from-blue-600 hover:via-blue-600 hover:to-pink-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 hover:shadow-2xl disabled:hover:scale-100 disabled:hover:shadow-none relative overflow-hidden group"
-              >
-                <span className="relative z-10 flex items-center justify-center gap-3">
+                )}
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={!file || !jobRole.trim()}
+                  className="w-full bg-slate-800 text-white py-4 rounded-xl font-semibold text-lg hover:bg-slate-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-slate-800 flex items-center justify-center gap-3"
+                >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                   Generate My Career Plan
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </button>
-            </form>
+                </button>
+              </form>
+            </div>
           ) : (
-            <div className="space-y-8 py-8">
-              {/* Progress Header */}
-              <div className="text-center space-y-4">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full animate-spin">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
+            <div className="bg-slate-50 p-8 md:p-12">
+              <div className="space-y-8">
+                {/* Progress Header */}
+                <div className="text-center space-y-4">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-800 rounded-full">
+                    <svg className="w-8 h-8 text-white animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </div>
+                  <h2 className="text-2xl font-bold text-slate-800">Processing Your Career Data</h2>
+                  <p className="text-slate-600">Our AI is analyzing your profile and market trends...</p>
                 </div>
-                <h2 className="text-2xl font-bold text-white">Processing Your Career Data</h2>
-                <p className="text-gray-300">Our AI is analyzing your profile and market trends...</p>
-              </div>
-              {/* Progress Bar */}
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm text-gray-300">
-                  <span className="font-medium">Overall Progress</span>
-                  <span className="font-bold">{progress}%</span>
-                </div>
-                <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
-                  <div
-                    className="h-full bg-gradient-to-r from-blue-500 via-blue-500 to-pink-500 transition-all duration-1000 ease-out relative overflow-hidden"
-                    style={{ width: `${progress}%` }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
+
+                {/* Progress Bar */}
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm text-slate-600">
+                    <span className="font-medium">Overall Progress</span>
+                    <span className="font-bold">{progress}%</span>
+                  </div>
+                  <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-slate-800 transition-all duration-1000 ease-out"
+                      style={{ width: `${progress}%` }}
+                    ></div>
                   </div>
                 </div>
-              </div>
-              {/* Steps */}
-              <div className="grid gap-4">
-                {steps.map((step, index) => {
-                  const isActive = index === currentStep;
-                  const isCompleted = index < currentStep;
-                  return (
-                    <div
-                      key={step.id}
-                      className={`flex items-center gap-6 p-6 rounded-2xl border-2 transition-all duration-700 transform ${
-                        isActive
-                          ? "border-blue-400/50 bg-blue-500/10 scale-105 shadow-lg shadow-blue-500/25"
-                          : isCompleted
-                          ? "border-green-400/50 bg-green-500/10 shadow-lg shadow-green-500/25"
-                          : "border-white/10 bg-white/5"
-                      }`}
-                    >
+
+                {/* Steps */}
+                <div className="grid gap-4">
+                  {steps.map((step, index) => {
+                    const isActive = index === currentStep;
+                    const isCompleted = index < currentStep;
+                    return (
                       <div
-                        className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-500 ${
+                        key={step.id}
+                        className={`flex items-center gap-6 p-6 rounded-xl border-2 transition-all duration-700 ${
                           isActive
-                            ? "bg-blue-500 text-white animate-pulse"
+                            ? "border-slate-300 bg-white shadow-md"
                             : isCompleted
-                            ? "bg-green-500 text-white"
-                            : "bg-white/10 text-gray-400"
+                            ? "border-green-200 bg-green-50"
+                            : "border-slate-200 bg-white"
                         }`}
                       >
-                        {isCompleted ? (
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                        ) : (
-                          <span className="font-bold">{step.id}</span>
+                        <div
+                          className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-500 ${
+                            isActive
+                              ? "bg-slate-800 text-white"
+                              : isCompleted
+                              ? "bg-green-600 text-white"
+                              : "bg-slate-200 text-slate-600"
+                          }`}
+                        >
+                          {isCompleted ? (
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <span className="font-bold">{step.id}</span>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <h3
+                            className={`font-bold text-lg transition-colors duration-500 ${
+                              isActive ? "text-slate-800" : isCompleted ? "text-green-800" : "text-slate-600"
+                            }`}
+                          >
+                            {step.title}
+                          </h3>
+                          <p
+                            className={`text-sm transition-colors duration-500 ${
+                              isActive ? "text-slate-600" : isCompleted ? "text-green-600" : "text-slate-500"
+                            }`}
+                          >
+                            {step.description}
+                          </p>
+                        </div>
+                        {isActive && (
+                          <div className="flex space-x-1">
+                            <div className="w-2 h-2 bg-slate-600 rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 bg-slate-600 rounded-full animate-bounce animation-delay-200"></div>
+                            <div className="w-2 h-2 bg-slate-600 rounded-full animate-bounce animation-delay-400"></div>
+                          </div>
                         )}
                       </div>
-                      <div className="flex-1">
-                        <h3
-                          className={`font-bold text-lg transition-colors duration-500 ${
-                            isActive ? "text-blue-300" : isCompleted ? "text-green-300" : "text-gray-400"
-                          }`}
-                        >
-                          {step.title}
-                        </h3>
-                        <p
-                          className={`text-sm transition-colors duration-500 ${
-                            isActive ? "text-blue-200" : isCompleted ? "text-green-200" : "text-gray-500"
-                          }`}
-                        >
-                          {step.description}
-                        </p>
-                      </div>
-                      {isActive && (
-                        <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce animation-delay-200"></div>
-                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce animation-delay-400"></div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
@@ -361,16 +363,10 @@ export default function EnhancedCareerPlannerHome() {
       </div>
       <style>{`
         .animation-delay-200 {
-          animation-delay: 10s;
+          animation-delay: 0.2s;
         }
         .animation-delay-400 {
-          animation-delay: 10s;
-        }
-        .animation-delay-2000 {
-          animation-delay: 10s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 10s;
+          animation-delay: 0.4s;
         }
       `}</style>
     </div>
